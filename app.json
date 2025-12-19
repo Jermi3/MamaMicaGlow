@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Mama-Mica_Glow",
-    "slug": "Mama-Mica_Glow",
+    "name": "Mama Mica Glow",
+    "slug": "mama-mica-glow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mamamica.glow",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "We use notifications to remind you about your peptide doses and scheduled protocols.",
+        "NSPhotoLibraryUsageDescription": "Select a photo for your profile picture.",
+        "NSCameraUsageDescription": "Take a photo for your profile picture.",
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +30,14 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "package": "com.mamamica.glow"
     },
     "web": {
       "output": "static",
@@ -27,15 +45,18 @@
     },
     "plugins": [
       "expo-router",
+      "expo-av",
+      "expo-notifications",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "imageWidth": 280,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#5B4B8A",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#3D2F5F"
           }
         }
       ]
