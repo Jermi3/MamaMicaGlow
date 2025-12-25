@@ -245,7 +245,7 @@ export default function CalendarScreen() {
                 const peptideNames = freshPeptides.map((p: any) => p.name.toLowerCase());
                 const validSchedules = data.filter(schedule => {
                     const schedulePeptideName = schedule.peptide.toLowerCase();
-                    return peptideNames.some(name => schedulePeptideName.includes(name) || name.includes(schedulePeptideName));
+                    return peptideNames.some((name: string) => schedulePeptideName.includes(name) || name.includes(schedulePeptideName));
                 });
 
                 if (validSchedules.length !== data.length) {
@@ -316,7 +316,7 @@ export default function CalendarScreen() {
 
                         // Filter out orphaned schedules even if they are in storage
                         const schedulePeptideName = schedule.peptide.toLowerCase();
-                        const isOrphaned = !activePeptideNames.some(name =>
+                        const isOrphaned = !activePeptideNames.some((name: string) =>
                             schedulePeptideName.includes(name) || name.includes(schedulePeptideName)
                         );
 

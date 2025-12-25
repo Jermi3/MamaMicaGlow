@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Activity, Bell, BookOpen, Calendar, ChevronRight, Clock, Flame, Pill, Plus, Target, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import Animated, { interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -36,6 +36,7 @@ export default function HomeScreen() {
   const sectionTitleColor = isDark ? Colors.gray[100] : Colors.gray[900];
 
   const [userName, setUserName] = useState('');
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [weeklyStatus, setWeeklyStatus] = useState<DayStatus[]>(
     DAYS.map(() => ({ completed: false, scheduled: false }))
   );
@@ -56,8 +57,26 @@ export default function HomeScreen() {
         lastLoadRef.current = now;
         loadData();
       }
+      // Check if disclaimer was dismissed
+      checkDisclaimerState();
     }, [])
   );
+
+  const checkDisclaimerState = async () => {
+    try {
+      const dismissed = await AsyncStorage.getItem('home_disclaimer_dismissed');
+      if (dismissed === 'true') {
+        setShowDisclaimer(false);
+      }
+    } catch (e) {
+      // Ignore
+    }
+  };
+
+  const dismissDisclaimer = async () => {
+    setShowDisclaimer(false);
+    await AsyncStorage.setItem('home_disclaimer_dismissed', 'true');
+  };
 
   const loadData = async () => {
     // Load user profile from AsyncStorage
@@ -257,6 +276,36 @@ export default function HomeScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
+        {/* Medical Disclaimer Banner - App Store Compliance */}
+        {showDisclaimer && (
+          <SoundButton
+            style={styles.disclaimerBanner}
+            onPress={() => Linking.openURL('https://www.fda.gov/consumers/consumer-updates/peptides-drug-use')}
+            activeOpacity={0.9}
+          >
+            <View style={styles.disclaimerContent}>
+              <View style={styles.disclaimerIcon}>
+                <StyledText style={{ fontSize: 16 }}>⚕️</StyledText>
+              </View>
+              <View style={styles.disclaimerTextContainer}>
+                <StyledText variant="semibold" style={styles.disclaimerTitle}>
+                  Consult Your Healthcare Provider
+                </StyledText>
+                <StyledText variant="regular" style={styles.disclaimerText}>
+                  This app is for tracking only. Always consult a doctor before starting any peptide regimen.
+                </StyledText>
+              </View>
+              <SoundButton
+                onPress={dismissDisclaimer}
+                style={styles.dismissButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <X size={16} color="#8B7355" />
+              </SoundButton>
+            </View>
+          </SoundButton>
+        )}
+
         {/* Weekly Activity Section */}
         <View style={styles.section}>
           <StyledText variant="bold" style={[styles.sectionTitle, { color: sectionTitleColor }]}>
@@ -994,5 +1043,43 @@ const styles = StyleSheet.create({
   activityMeta: {
     fontSize: 13,
     marginTop: 2,
+  },
+  // Medical Disclaimer Banner styles
+  disclaimerBanner: {
+    backgroundColor: 'rgba(184, 134, 11, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(184, 134, 11, 0.2)',
+  },
+  disclaimerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  disclaimerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(184, 134, 11, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  disclaimerTextContainer: {
+    flex: 1,
+  },
+  disclaimerTitle: {
+    fontSize: 13,
+    color: '#8B7355',
+    marginBottom: 2,
+  },
+  disclaimerText: {
+    fontSize: 11,
+    color: '#A08060',
+    lineHeight: 14,
+  },
+  dismissButton: {
+    padding: 4,
   },
 });

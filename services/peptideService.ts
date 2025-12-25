@@ -9,6 +9,17 @@ export interface DosingInfo {
     notes?: string;
 }
 
+// Citation interface for peer-reviewed references (App Store compliance)
+export interface Citation {
+    title: string;
+    authors: string;
+    journal: string;
+    year: string;
+    doi?: string;
+    pmid?: string;
+    url?: string;
+}
+
 export interface Peptide {
     id: string;
     name: string;
@@ -31,6 +42,7 @@ export interface Peptide {
     specifications: Record<string, any> | null;
     price_per_vial: number;
     price_per_box: number;
+    citations: Citation[]; // Scientific citations for medical claims
 }
 
 // Mock Data for Beta Testing/Development
@@ -62,7 +74,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-2',
@@ -90,7 +103,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-3',
@@ -118,7 +132,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-4',
@@ -146,7 +161,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-5',
@@ -174,7 +190,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-6',
@@ -202,7 +219,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-7',
@@ -230,7 +248,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     },
     {
         id: 'mock-8',
@@ -258,7 +277,8 @@ const MOCK_PEPTIDES: Peptide[] = [
         vials_per_box: 1,
         specifications: null,
         price_per_vial: 0,
-        price_per_box: 0
+        price_per_box: 0,
+        citations: []
     }
 ];
 

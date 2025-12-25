@@ -104,7 +104,7 @@ export default function ProfileScreen() {
     const handlePickImage = useCallback(async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            
+
             if (status !== 'granted') {
                 setShowImageOptions(false);
                 setAlertConfig({ visible: true, title: 'Permission Needed', message: 'Photo library access is required to select a photo.', type: 'warning' });
@@ -134,7 +134,7 @@ export default function ProfileScreen() {
     const handleTakePhoto = useCallback(async () => {
         try {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            
+
             if (status !== 'granted') {
                 setShowImageOptions(false);
                 setAlertConfig({ visible: true, title: 'Permission Needed', message: 'Camera access is required to take a photo.', type: 'warning' });
@@ -311,7 +311,7 @@ export default function ProfileScreen() {
                     onRequestClose={() => setShowImageOptions(false)}
                 >
                     <View style={styles.modalOverlay} pointerEvents="box-none">
-                        <GlowCard variant="surface" style={[styles.modalContent, { backgroundColor: cardBg }]} pointerEvents="auto">
+                        <View style={[styles.modalContent, { backgroundColor: cardBg }]}>
                             <StyledText variant="bold" style={[styles.modalTitle, { color: textColor }]}>Update Profile Photo</StyledText>
 
                             <SoundButton
@@ -342,7 +342,7 @@ export default function ProfileScreen() {
                             >
                                 <StyledText variant="bold" style={[styles.modalCancelText, { color: subtitleColor }]}>Cancel</StyledText>
                             </SoundButton>
-                        </GlowCard>
+                        </View>
                     </View>
                 </Modal>
 

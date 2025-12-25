@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mama Mica Glow",
     "slug": "mama-mica-glow",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mamamicaglow",
@@ -11,15 +11,18 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mamamica.glow",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSUserNotificationsUsageDescription": "We use notifications to remind you about your peptide doses and scheduled protocols.",
         "NSPhotoLibraryUsageDescription": "Select a photo for your profile picture.",
         "NSCameraUsageDescription": "Take a photo for your profile picture.",
         "UIBackgroundModes": [
           "fetch",
+          "remote-notification",
+          "fetch",
           "remote-notification"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -32,8 +35,6 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
@@ -64,6 +65,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d93f549e-d4f3-42ed-bb32-7fd69f883a06"
+      }
     }
   }
 }

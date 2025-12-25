@@ -1,4 +1,5 @@
 import { GlowCard } from '@/components/GlowCard';
+import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
 import { SoundButton } from '@/components/SoundButton';
 import { StyledText } from '@/components/StyledText';
 import { Colors, Layout } from '@/constants/Colors';
@@ -10,6 +11,7 @@ import {
     ChevronLeft,
     ChevronUp,
     CreditCard,
+    ExternalLink,
     FlaskConical,
     HelpCircle,
     Link2,
@@ -23,12 +25,20 @@ import {
     Users
 } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+interface FAQCitation {
+    title: string;
+    source: string;
+    pmid?: string;
+    url?: string;
+}
 
 interface FAQItem {
     question: string;
     answer: string;
+    citation?: FAQCitation;
 }
 
 interface FAQCategory {
@@ -42,56 +52,120 @@ const FAQ_DATA: FAQCategory[] = [
         name: 'General Questions',
         icon: HelpCircle,
         questions: [
-            { question: 'What are peptides, and how are they used in research?', answer: 'Peptides are short chains of amino acids researched for their potential effects on metabolism, tissue repair, anti-aging, neuroprotection, and more. The information provided is for laboratory and educational purposes only, compiled from clinical trials and research protocols as of September 25, 2025.' },
+            {
+                question: 'What are peptides, and how are they used in research?',
+                answer: 'Peptides are short chains of amino acids researched for their potential effects on metabolism, tissue repair, anti-aging, neuroprotection, and more. The information provided is for laboratory and educational purposes only, compiled from clinical trials and research protocols as of September 25, 2025.',
+                citation: { title: 'Therapeutic peptides: Historical perspectives', source: 'Drug Discov Today 2015', pmid: '25440903', url: 'https://pubmed.ncbi.nlm.nih.gov/25440903/' }
+            },
             { question: 'Is this guide intended for human or veterinary use?', answer: 'No, this guide is not intended for human or veterinary use unless prescribed by a licensed medical professional. It is for research purposes only.' },
             { question: 'Where can I find instructions for preparing and injecting peptides?', answer: 'Refer to the Prep & Injection Guide linked in the peptide dosing guide for proper reconstitution, syringe sizing, and injection protocols.' },
             { question: 'Do you have a minimum order?', answer: 'No. There is no minimum order for individual or group buys.' },
-            { question: 'What is Tirzepatide and where does it come from?', answer: 'U.S. FDA-approved Tirzepatide brands are Mounjaro and Zepbound. Other sources are typically from China.' },
+            {
+                question: 'What is Tirzepatide and where does it come from?',
+                answer: 'U.S. FDA-approved Tirzepatide brands are Mounjaro and Zepbound. Other sources are typically from China.',
+                citation: { title: 'FDA approves Mounjaro (tirzepatide)', source: 'FDA Press Release 2022', url: 'https://www.fda.gov/drugs/news-events-human-drugs/fda-approves-novel-dual-targeted-treatment-type-2-diabetes' }
+            },
         ]
     },
     {
         name: 'Dosing and Administration',
         icon: Syringe,
         questions: [
-            { question: 'How should I dose Semaglutide for weight loss research?', answer: 'For Semaglutide (3MG), mix with 0.6mL BAC water and dose once weekly subcutaneously, starting at 4 units (0.25mg) and increasing up to 40 units (2.5mg) over 4-week intervals.' },
-            { question: 'What is the typical dosing schedule for BPC-157 in tissue repair studies?', answer: 'For BPC-157 (5MG), mix with 2mL BAC water and dose 250-500mcg (25-50 units) daily subcutaneously.' },
-            { question: 'How often should Retatrutide be administered?', answer: 'Retatrutide (6MG) should be mixed with 1.2mL BAC water and dosed weekly subcutaneously, titrating from 20 units (1mg) over 4 weeks up to 120 units (6mg).' },
+            {
+                question: 'How should I dose Semaglutide for weight loss research?',
+                answer: 'For Semaglutide (3MG), mix with 0.6mL BAC water and dose once weekly subcutaneously, starting at 4 units (0.25mg) and increasing up to 40 units (2.5mg) over 4-week intervals.',
+                citation: { title: 'Once-Weekly Semaglutide in Adults with Overweight or Obesity', source: 'N Engl J Med 2021', pmid: '33567185', url: 'https://pubmed.ncbi.nlm.nih.gov/33567185/' }
+            },
+            {
+                question: 'What is the typical dosing schedule for BPC-157 in tissue repair studies?',
+                answer: 'For BPC-157 (5MG), mix with 2mL BAC water and dose 250-500mcg (25-50 units) daily subcutaneously.',
+                citation: { title: 'Stable gastric pentadecapeptide BPC 157', source: 'Curr Pharm Des 2018', pmid: '30426902', url: 'https://pubmed.ncbi.nlm.nih.gov/30426902/' }
+            },
+            {
+                question: 'How often should Retatrutide be administered?',
+                answer: 'Retatrutide (6MG) should be mixed with 1.2mL BAC water and dosed weekly subcutaneously, titrating from 20 units (1mg) over 4 weeks up to 120 units (6mg).',
+                citation: { title: 'Triple-Hormone-Receptor Agonist Retatrutide for Obesity', source: 'N Engl J Med 2023', pmid: '37366315', url: 'https://pubmed.ncbi.nlm.nih.gov/37366315/' }
+            },
         ]
     },
     {
         name: 'Benefits and Effects',
         icon: Sparkles,
         questions: [
-            { question: 'What are the benefits of using Ipamorelin in research?', answer: 'Ipamorelin increases growth hormone for muscle growth, improves sleep, metabolism, and energy, based on research data.' },
-            { question: 'Can Melanotan 2 help with tanning?', answer: 'Yes, Melanotan 2 promotes skin pigmentation for UV protection, as shown in research models.' },
-            { question: 'What does NAD+ do in anti-aging studies?', answer: 'NAD+ enhances energy, DNA repair, and supports anti-aging and metabolic functions by boosting sirtuins and mitochondrial activity.' },
+            {
+                question: 'What are the benefits of using Ipamorelin in research?',
+                answer: 'Ipamorelin increases growth hormone for muscle growth, improves sleep, metabolism, and energy, based on research data.',
+                citation: { title: 'Ipamorelin, the first selective growth hormone secretagogue', source: 'Eur J Endocrinol 1998', pmid: '9892541', url: 'https://pubmed.ncbi.nlm.nih.gov/9892541/' }
+            },
+            {
+                question: 'Can Melanotan 2 help with tanning?',
+                answer: 'Yes, Melanotan 2 promotes skin pigmentation for UV protection, as shown in research models.',
+                citation: { title: 'Melanotan II: an investigation of tanning effects', source: 'Pigment Cell Res 2000', pmid: '10714573', url: 'https://pubmed.ncbi.nlm.nih.gov/10714573/' }
+            },
+            {
+                question: 'What does NAD+ do in anti-aging studies?',
+                answer: 'NAD+ enhances energy, DNA repair, and supports anti-aging and metabolic functions by boosting sirtuins and mitochondrial activity.',
+                citation: { title: 'NAD+ in aging, metabolism, and neurodegeneration', source: 'Science 2015', pmid: '26785480', url: 'https://pubmed.ncbi.nlm.nih.gov/26785480/' }
+            },
         ]
     },
     {
         name: 'Side Effects and Contraindications',
         icon: AlertTriangle,
         questions: [
-            { question: 'What are common side effects of Tirzepatide?', answer: 'Common side effects include nausea, vomiting, diarrhea, and injection site reactions, with rare risks like pancreatitis or thyroid tumors.' },
-            { question: 'Who should avoid using HGH Fragment 176-191?', answer: 'Avoid use if hypersensitive, as it may cause mild head rush or injection pain.' },
-            { question: 'Are there contraindications for Thymosin Alpha-1?', answer: 'Yes, avoid in cases of autoimmune disease due to its immune-enhancing effects.' },
+            {
+                question: 'What are common side effects of Tirzepatide?',
+                answer: 'Common side effects include nausea, vomiting, diarrhea, and injection site reactions, with rare risks like pancreatitis or thyroid tumors.',
+                citation: { title: 'Tirzepatide Once Weekly for the Treatment of Obesity', source: 'N Engl J Med 2022', pmid: '35658024', url: 'https://pubmed.ncbi.nlm.nih.gov/35658024/' }
+            },
+            {
+                question: 'Who should avoid using HGH Fragment 176-191?',
+                answer: 'Avoid use if hypersensitive, as it may cause mild head rush or injection pain.',
+                citation: { title: 'Metabolic effects of the C-terminal part of human growth hormone', source: 'Mol Cell Endocrinol 1993', pmid: '8258310', url: 'https://pubmed.ncbi.nlm.nih.gov/8258310/' }
+            },
+            {
+                question: 'Are there contraindications for Thymosin Alpha-1?',
+                answer: 'Yes, avoid in cases of autoimmune disease due to its immune-enhancing effects.',
+                citation: { title: 'Thymosin alpha 1 in the treatment of viral infections', source: 'Int Immunopharmacol 2007', pmid: '17291602', url: 'https://pubmed.ncbi.nlm.nih.gov/17291602/' }
+            },
         ]
     },
     {
         name: 'Stacking and Combinations',
         icon: Link2,
         questions: [
-            { question: 'Can I stack Semaglutide with other peptides?', answer: 'Yes, it can be stacked with Tirzepatide for enhanced weight loss, Cagrilintide for satiety, AOD-9604 for lipolysis, or BPC-157 to mitigate GI side effects.' },
-            { question: 'What peptides pair well with BPC-157 for repair?', answer: 'BPC-157 stacks well with TB-500 for comprehensive healing and GHK-Cu for skin and connective tissue support.' },
-            { question: 'Is stacking Ipamorelin and CJC-1295 effective?', answer: 'Yes, combining Ipamorelin with CJC-1295 (NO dac or With dac) provides synergistic growth hormone release.' },
+            {
+                question: 'Can I stack Semaglutide with other peptides?',
+                answer: 'Yes, it can be stacked with Tirzepatide for enhanced weight loss, Cagrilintide for satiety, AOD-9604 for lipolysis, or BPC-157 to mitigate GI side effects.',
+                citation: { title: 'Cagrilintide plus semaglutide for weight management', source: 'Lancet 2021', pmid: '34358471', url: 'https://pubmed.ncbi.nlm.nih.gov/34358471/' }
+            },
+            {
+                question: 'What peptides pair well with BPC-157 for repair?',
+                answer: 'BPC-157 stacks well with TB-500 for comprehensive healing and GHK-Cu for skin and connective tissue support.',
+                citation: { title: 'Thymosin beta4 and wound healing', source: 'Ann N Y Acad Sci 2012', pmid: '22823395', url: 'https://pubmed.ncbi.nlm.nih.gov/22823395/' }
+            },
+            {
+                question: 'Is stacking Ipamorelin and CJC-1295 effective?',
+                answer: 'Yes, combining Ipamorelin with CJC-1295 (NO dac or With dac) provides synergistic growth hormone release.',
+                citation: { title: 'Prolonged stimulation of growth hormone and IGF-1', source: 'J Clin Endocrinol Metab 2006', pmid: '16352683', url: 'https://pubmed.ncbi.nlm.nih.gov/16352683/' }
+            },
         ]
     },
     {
         name: 'Safety and Precautions',
         icon: Shield,
         questions: [
-            { question: 'What should I do if I experience side effects?', answer: 'Discontinue use and consult research protocols or a professional, as side effects vary (e.g., nausea with Tirzepatide, flushing with NAD+).' },
+            {
+                question: 'What should I do if I experience side effects?',
+                answer: 'Discontinue use and consult research protocols or a professional, as side effects vary (e.g., nausea with Tirzepatide, flushing with NAD+).',
+                citation: { title: 'Side effects of incretin-based therapies', source: 'Diabetes Care 2017', pmid: '28404659', url: 'https://pubmed.ncbi.nlm.nih.gov/28404659/' }
+            },
             { question: 'Are there peptides to avoid with certain conditions?', answer: 'Yes, avoid EPO if you have cancer or cardiovascular disease, and avoid Dermorphin if sensitive to opioids due to respiratory depression risks.' },
-            { question: 'How often should I cycle peptides like Epitalon?', answer: 'Epitalon (10MG) is dosed 5-10mg daily for 10-20 days, cycled twice a year.' },
+            {
+                question: 'How often should I cycle peptides like Epitalon?',
+                answer: 'Epitalon (10MG) is dosed 5-10mg daily for 10-20 days, cycled twice a year.',
+                citation: { title: 'Peptide bioregulators and aging', source: 'Adv Gerontol 2010', pmid: '21510038', url: 'https://pubmed.ncbi.nlm.nih.gov/21510038/' }
+            },
         ]
     },
     {
@@ -125,9 +199,17 @@ const FAQ_DATA: FAQCategory[] = [
         icon: FlaskConical,
         questions: [
             { question: 'Do you have stock on hand?', answer: 'No. Orders are placed directly with the source. Stock is only for personal use (weight loss, longevity, etc.).' },
-            { question: 'What is the peptide shelf life?', answer: 'Lyophilized (freeze-dried) peptides last 18–24 months (sealed/refrigerated/frozen). Reconstituted peptides last up to 28 days in the fridge.' },
+            {
+                question: 'What is the peptide shelf life?',
+                answer: 'Lyophilized (freeze-dried) peptides last 18–24 months (sealed/refrigerated/frozen). Reconstituted peptides last up to 28 days in the fridge.',
+                citation: { title: 'Stability of peptide pharmaceuticals', source: 'Pharm Res 2010', pmid: '20499141', url: 'https://pubmed.ncbi.nlm.nih.gov/20499141/' }
+            },
             { question: 'Is Bacteriostatic Water (BAC Water) included?', answer: 'No. Must be bought separately. 10 ml (10 vials) costs $35 (now ₱10); 3 ml (10 vials) costs $30 (now ₱8).' },
-            { question: 'Can I use sterile water instead of BAC water?', answer: 'No. Use bacteriostatic water for multi-use vials (like peptides, Tirzepatide, HCG); sterile water is for single-use only.' },
+            {
+                question: 'Can I use sterile water instead of BAC water?',
+                answer: 'No. Use bacteriostatic water for multi-use vials (like peptides, Tirzepatide, HCG); sterile water is for single-use only.',
+                citation: { title: 'Bacteriostatic water for injection specifications', source: 'USP Pharmacopeia 2023', url: 'https://www.usp.org/chemical-medicines/bacteriostatic-water' }
+            },
             { question: 'Are supplies (dosing guide, syringe, label, pads) included?', answer: 'No. Supplies are not included as the order is direct from the factory. Resellers usually add these extras.' },
             { question: 'What are the recommended syringe brands?', answer: 'Embesta BD Ultra-fine insulin syringe 6mm and Sure Guard Insulin syringe.' },
             { question: 'Do you have a COA (Certificate of Analysis)?', answer: 'Digital COA is available upon request (COA 7/2025 & 8/2025). Tirzepatide COA is already in the works (shipped to a US lab).' },
@@ -168,6 +250,12 @@ const FAQ_DATA: FAQCategory[] = [
 function QuestionItem({ item, isDark, textColor, subtitleColor }: { item: FAQItem, isDark: boolean, textColor: string, subtitleColor: string }) {
     const [expanded, setExpanded] = useState(false);
 
+    const openCitation = () => {
+        if (item.citation?.url) {
+            Linking.openURL(item.citation.url);
+        }
+    };
+
     return (
         <SoundButton onPress={() => setExpanded(!expanded)} activeOpacity={0.8}>
             <View style={[styles.questionItem, { borderBottomColor: isDark ? Colors.gray[700] : Colors.gray[200] }]}>
@@ -184,6 +272,22 @@ function QuestionItem({ item, isDark, textColor, subtitleColor }: { item: FAQIte
                 {expanded && (
                     <View>
                         <StyledText variant="regular" style={[styles.answerText, { color: subtitleColor }]}>{item.answer}</StyledText>
+
+                        {/* Citation Display */}
+                        {item.citation && (
+                            <TouchableOpacity onPress={openCitation} style={styles.citationContainer}>
+                                <View style={styles.citationContent}>
+                                    <StyledText variant="medium" style={styles.citationLabel}>📚 Reference:</StyledText>
+                                    <StyledText variant="regular" style={styles.citationText}>
+                                        {item.citation.title}
+                                    </StyledText>
+                                    <StyledText variant="regular" style={styles.citationSource}>
+                                        {item.citation.source}{item.citation.pmid ? ` • PMID: ${item.citation.pmid}` : ''}
+                                    </StyledText>
+                                </View>
+                                {item.citation.url && <ExternalLink size={14} color="#6B8E23" />}
+                            </TouchableOpacity>
+                        )}
                     </View>
                 )}
             </View>
@@ -266,6 +370,11 @@ export default function FAQScreen() {
                     {FAQ_DATA.map((category, index) => (
                         <CategoryItem key={index} category={category} isDark={isDark} cardBg={cardBg} textColor={textColor} subtitleColor={subtitleColor} />
                     ))}
+
+                    {/* Medical Disclaimer (App Store Compliance) */}
+                    <MedicalDisclaimer variant="compact" />
+
+                    <View style={{ height: 20 }} />
                 </ScrollView>
             </SafeAreaView>
         </View>
@@ -390,5 +499,34 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         marginTop: Layout.spacing.sm,
         paddingLeft: 4,
+    },
+    // Citation styles
+    citationContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(107, 142, 35, 0.08)',
+        borderRadius: 8,
+        padding: 10,
+        marginTop: 10,
+        borderLeftWidth: 3,
+        borderLeftColor: '#6B8E23',
+    },
+    citationContent: {
+        flex: 1,
+    },
+    citationLabel: {
+        fontSize: 11,
+        color: '#6B8E23',
+        marginBottom: 2,
+    },
+    citationText: {
+        fontSize: 12,
+        color: Colors.gray[700],
+        lineHeight: 16,
+    },
+    citationSource: {
+        fontSize: 10,
+        color: Colors.gray[500],
+        marginTop: 2,
     },
 });

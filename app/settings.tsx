@@ -5,7 +5,7 @@ import { StyledText } from '@/components/StyledText';
 import { Colors, Layout } from '@/constants/Colors';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useRouter } from 'expo-router';
-import { Bell, ChevronLeft, Moon, Smartphone, Volume2 } from 'lucide-react-native';
+import { Bell, ChevronLeft, ChevronRight, FileText, Moon, Shield, Smartphone, Volume2 } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -131,8 +131,40 @@ export default function SettingsScreen() {
                         </View>
                     </GlowCard>
 
+                    <StyledText variant="semibold" style={[styles.sectionTitle, { color: subtitleColor }]}>Legal</StyledText>
 
-                    <StyledText variant="regular" style={styles.versionText}>Version 1.0.2 (Build 45)</StyledText>
+                    <GlowCard variant="surface" style={[styles.settingsGroup, isDark && { backgroundColor: cardBg }]}>
+                        <SoundButton
+                            onPress={() => router.push('/privacy-policy')}
+                            style={styles.settingRow}
+                        >
+                            <View style={styles.settingLeft}>
+                                <View style={[styles.iconBox, { backgroundColor: isDark ? Colors.gray[800] : '#E0F2FE' }]}>
+                                    <Shield size={20} color="#0EA5E9" />
+                                </View>
+                                <StyledText variant="medium" style={[styles.settingLabel, { color: textColor }]}>Privacy Policy</StyledText>
+                            </View>
+                            <ChevronRight size={20} color={subtitleColor} />
+                        </SoundButton>
+
+                        <View style={[styles.divider, { backgroundColor: dividerColor }]} />
+
+                        <SoundButton
+                            onPress={() => router.push('/terms-of-service')}
+                            style={styles.settingRow}
+                        >
+                            <View style={styles.settingLeft}>
+                                <View style={[styles.iconBox, { backgroundColor: isDark ? Colors.gray[800] : '#FEF3C7' }]}>
+                                    <FileText size={20} color="#F59E0B" />
+                                </View>
+                                <StyledText variant="medium" style={[styles.settingLabel, { color: textColor }]}>Terms of Service</StyledText>
+                            </View>
+                            <ChevronRight size={20} color={subtitleColor} />
+                        </SoundButton>
+                    </GlowCard>
+
+
+                    <StyledText variant="regular" style={styles.versionText}>Version 1.0.0 (Build 1)</StyledText>
 
                 </ScrollView >
             </SafeAreaView >

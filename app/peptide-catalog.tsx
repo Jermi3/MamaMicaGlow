@@ -1,4 +1,5 @@
 import { AlertModal } from '@/components/AlertModal';
+import { MedicalDisclaimer } from '@/components/MedicalDisclaimer';
 import { SoundButton } from '@/components/SoundButton';
 import { StyledText } from '@/components/StyledText';
 import { Colors, Layout } from '@/constants/Colors';
@@ -812,6 +813,13 @@ export default function PeptideCatalogScreen() {
                                             </View>
                                         </View>
                                     )}
+
+                                    {/* Scientific References & Disclaimer (App Store Compliance) */}
+                                    <MedicalDisclaimer
+                                        variant="full"
+                                        showCitations={true}
+                                        citations={selectedPeptide.citations || []}
+                                    />
 
                                     {/* Bottom spacing for scroll */}
                                     <View style={{ height: 20 }} />

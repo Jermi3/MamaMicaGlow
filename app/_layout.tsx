@@ -1,17 +1,16 @@
 import { Colors } from '@/constants/Colors';
 import { saveNotification } from '@/constants/storage';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { PreferencesProvider, usePreferences } from '@/contexts/PreferencesContext';
-import { useLoadedAssets } from '@/hooks/useLoadedAssets';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePreferences } from '@/contexts/PreferencesContext';
 import { requestNotificationPermissions, syncAllNotifications } from '@/services/notificationService';
 import { syncService } from '@/services/syncService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -48,6 +47,20 @@ function AppContent() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const theme = preferences.darkMode ? CustomDarkTheme : LightTheme;
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+
+  // Check if onboarding is complete
+  useEffect(() => {
+    async function checkOnboarding() {
+      try {
+        const completed = await AsyncStorage.getItem('onboarding_completed');
+        setOnboardingComplete(completed === 'true');
+      } catch (e) {
+        setOnboardingComplete(true); // Default to true if error
+      }
+    }
+    checkOnboarding();
+  }, []);
 
   // Trigger cloud sync when user is authenticated
   useEffect(() => {
@@ -117,17 +130,23 @@ function AppContent() {
     setupNotifications();
   }, [isLoading, preferences.notifications]);
 
-  if (isLoading || isAuthLoading) {
+  if (isLoading || isAuthLoading || onboardingComplete === null) {
     return null;
   }
 
+  // Show onboarding if not complete
+  const initialRouteName = onboardingComplete ? '(tabs)' : 'onboarding';
+
   return (
     <ThemeProvider value={theme}>
-      <Stack>
+      <Stack initialRouteName={initialRouteName}>
+        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="personal-details" options={{ headerShown: false }} />
         <Stack.Screen name="privacy-security" options={{ headerShown: false }} />
+        <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
+        <Stack.Screen name="terms-of-service" options={{ headerShown: false }} />
 
         <Stack.Screen name="logbook" options={{ headerShown: false }} />
         <Stack.Screen name="faq" options={{ headerShown: false }} />
@@ -147,21 +166,4 @@ function AppContent() {
   );
 }
 
-export default function RootLayout() {
-  const isLoaded = useLoadedAssets();
-
-  if (!isLoaded) {
-    return null;
-  }
-
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <PreferencesProvider>
-          <AppContent />
-        </PreferencesProvider>
-      </AuthProvider>
-    </GestureHandlerRootView>
-  );
-}
 
